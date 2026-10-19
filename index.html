@@ -1,0 +1,486 @@
+<!DOCTYPE html> <htm
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wanderlust Horizons — Northern Portugal Travel Guide</title>
+<!--
+  PROJECT NOTE
+  Project type: Travel guide (single page).
+  Audience: independent travellers planning a short trip. Purpose: help them
+  choose destinations, follow a realistic itinerary, and find practical tips.
+  Grid: destination cards (auto-fit/minmax), itinerary (110px 1fr two-column),
+        gallery mosaic (4-column with spans).
+  Flexbox: header navigation, travel-tip cards, newsletter CTA row.
+  Small screens: itinerary collapses to one column, gallery drops to two columns
+        with row spans reset, tips and nav wrap and centre.
+  Challenge: the gallery mosaic left awkward gaps on mobile; fixed by resetting
+        grid-row: span 1 inside the media query.
+-->
+<style>
+  :root{
+    --ink:#0f172a;
+    --muted:#5b6b7c;
+    --paper:#f8fafc;
+    --card:#ffffff;
+    --line:#e2e8f0;
+    --accent:#0d9488;
+    --accent-2:#0ea5e9;
+    --accent-soft:#ccfbf1;
+    --radius:16px;
+    --shadow:0 10px 30px rgba(15,23,42,.08);
+    --max:1140px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.65;
+  }
+  h1,h2,h3{line-height:1.2;margin:0 0 .5em}
+  h1{font-size:clamp(2rem,5vw,3.4rem)}
+  h2{font-size:clamp(1.5rem,3.5vw,2.2rem)}
+  p{margin:0 0 1em}
+  .wrap{width:min(100% - 2.5rem, var(--max)); margin-inline:auto}
+  .section{padding:clamp(3rem,6vw,5rem) 0; scroll-margin-top:80px}
+  .section.alt{background:var(--accent-soft)}
+  .eyebrow{
+    text-transform:uppercase; letter-spacing:.18em; font-size:.75rem;
+    font-weight:700; color:var(--accent); margin:0 0 .8rem;
+  }
+  /* ============ HEADER (Flexbox) ============ */
+  .site-header{
+    position:sticky; top:0; z-index:20;
+    background:rgba(248,250,252,.94);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:1rem; padding:.9rem 0; flex-wrap:wrap;
+  }
+  .brand{
+    font-weight:800; font-size:1.15rem; text-decoration:none;
+    color:var(--ink); letter-spacing:.3px; white-space:nowrap;
+  }
+  .brand span{color:var(--accent)}
+  .nav{display:flex; align-items:center; gap:.35rem; flex-wrap:wrap}
+  .nav a{
+    text-decoration:none; font-weight:600; font-size:.95rem;
+    padding:.5rem .85rem; border-radius:999px; color:var(--ink);
+  }
+  .nav a:hover,.nav a:focus-visible{background:var(--accent-soft)}
+  .nav a:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+  .nav .btn{background:var(--accent); color:#fff; padding:.55rem 1.1rem}
+  .nav .btn:hover{background:#0f766e; color:#fff}
+  /* ============ HERO ============ */
+  .hero{
+    background:
+      radial-gradient(1100px 420px at 88% -20%, #bae6fd 0%, transparent 60%),
+      radial-gradient(900px 420px at -5% 115%, #99f6e4 0%, transparent 55%),
+      var(--paper);
+    padding:clamp(3rem,8vw,6rem) 0;
+  }
+  .hero-inner{
+    display:grid; grid-template-columns:1.15fr .85fr;
+    gap:clamp(1.5rem,4vw,3.5rem); align-items:center;
+  }
+  .hero .lead{font-size:1.1rem; color:var(--muted); max-width:48ch}
+  .hero-cta{display:flex; flex-wrap:wrap; gap:.75rem; margin-top:1.5rem}
+  .btn-solid,.btn-ghost{
+    text-decoration:none; font-weight:700; padding:.8rem 1.4rem;
+    border-radius:999px; display:inline-flex; align-items:center; gap:.45rem;
+    transition:background .2s ease, color .2s ease;
+  }
+  .btn-solid{background:var(--accent); color:#fff}
+  .btn-solid:hover{background:#0f766e}
+  .btn-ghost{border:2px solid var(--ink); color:var(--ink)}
+  .btn-ghost:hover{background:var(--ink); color:#fff}
+  .hero-visual{
+    aspect-ratio:4/3; border-radius:24px; position:relative; overflow:hidden;
+    background:
+      radial-gradient(circle at 32% 30%, #5eead4, transparent 55%),
+      radial-gradient(circle at 72% 72%, #38bdf8, transparent 55%),
+      linear-gradient(135deg,#0f766e,#0c4a6e);
+    display:grid; place-items:center; text-align:center;
+    color:#fff; padding:2rem; box-shadow:var(--shadow);
+  }
+  .hero-visual::after{
+    content:""; position:absolute; inset:14px;
+    border:1px dashed rgba(255,255,255,.45); border-radius:18px;
+  }
+  .hero-visual .icon{font-size:clamp(3rem,8vw,5rem); line-height:1}
+  .hero-visual small{
+    display:block; margin-top:.6rem; opacity:.9;
+    letter-spacing:.2em; text-transform:uppercase; font-size:.7rem;
+  }
+  /* ============ DESTINATIONS (Grid auto-fit) ============ */
+  .dest-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:1.25rem; margin-top:2rem;
+  }
+  .dest{
+    background:var(--card); border:1px solid var(--line);
+    border-radius:var(--radius); overflow:hidden;
+    display:flex; flex-direction:column;
+    box-shadow:var(--shadow);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .dest:hover{transform:translateY(-4px); box-shadow:0 18px 40px rgba(15,23,42,.14)}
+  .dest-img{
+    aspect-ratio:16/10; display:grid; place-items:center;
+    font-size:2.5rem; color:#fff;
+  }
+  .dest-img.a{background:linear-gradient(135deg,#0ea5e9,#0369a1)}
+  .dest-img.b{background:linear-gradient(135deg,#8b5cf6,#5b21b6)}
+  .dest-img.c{background:linear-gradient(135deg,#f59e0b,#b45309)}
+  .dest-img.d{background:linear-gradient(135deg,#10b981,#047857)}
+  .dest-img.e{background:linear-gradient(135deg,#f43f5e,#9f1239)}
+  .dest-img.f{background:linear-gradient(135deg,#14b8a6,#0f766e)}
+  .dest-body{padding:1rem 1.1rem 1.2rem; display:flex; flex-direction:column; flex:1}
+  .dest-body h3{margin:0 0 .35rem; font-size:1.08rem}
+  .dest-body p{margin:0; color:var(--muted); font-size:.92rem}
+  .dest-meta{
+    margin-top:auto; padding-top:.9rem;
+    display:flex; align-items:center; justify-content:space-between;
+    font-size:.82rem; font-weight:700; color:var(--accent);
+  }
+  .pill{
+    background:var(--accent-soft); color:#0f766e;
+    padding:.22rem .6rem; border-radius:999px;
+    font-size:.7rem; text-transform:uppercase; letter-spacing:.08em;
+  }
+  /* ============ ITINERARY (Grid two-column) ============ */
+  .itinerary{
+    display:grid; gap:1rem; margin-top:2rem;
+  }
+  .day{
+    display:grid;
+    grid-template-columns:110px 1fr;
+    gap:1.25rem;
+    align-items:start;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:1.15rem 1.3rem;
+    box-shadow:var(--shadow);
+  }
+  .day-num{
+    display:grid; place-items:center;
+    background:linear-gradient(135deg,var(--accent),#0f766e);
+    color:#fff; border-radius:12px; padding:.7rem .4rem;
+    text-align:center;
+  }
+  .day-num b{display:block; font-size:1.35rem; line-height:1}
+  .day-num span{font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; opacity:.9}
+  .day h3{margin:0 0 .3rem; font-size:1.05rem}
+  .day p{margin:0; color:var(--muted); font-size:.94rem}
+  /* ============ TRAVEL TIPS (Flexbox) ============ */
+  .tips{
+    display:flex; flex-wrap:wrap; gap:1.25rem; margin-top:2rem;
+  }
+  .tip{
+    flex:1 1 240px;
+    background:var(--card); border:1px solid var(--line);
+    border-radius:var(--radius); padding:1.3rem;
+    box-shadow:var(--shadow);
+    display:flex; flex-direction:column; gap:.4rem;
+  }
+  .tip .tip-icon{font-size:1.8rem; line-height:1}
+  .tip h3{margin:0; font-size:1rem}
+  .tip p{margin:0; color:var(--muted); font-size:.92rem}
+  /* ============ GALLERY (Grid mosaic) ============ */
+  .gallery{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    grid-auto-rows:150px;
+    gap:.75rem;
+    margin-top:2rem;
+  }
+  .gallery figure{
+    margin:0; border-radius:14px; overflow:hidden;
+    display:grid; place-items:center; color:#fff;
+    font-size:1.5rem; font-weight:700; letter-spacing:.02em;
+    text-align:center; padding:.75rem;
+    box-shadow:var(--shadow);
+  }
+  .gallery .wide{grid-column:span 2}
+  .g1{background:linear-gradient(135deg,#0ea5e9,#0369a1)}
+  .g2{background:linear-gradient(135deg,#f59e0b,#b45309)}
+  .g3{background:linear-gradient(135deg,#10b981,#047857)}
+  .g4{background:linear-gradient(135deg,#8b5cf6,#5b21b6)}
+  .g5{background:linear-gradient(135deg,#f43f5e,#9f1239)}
+  .g6{background:linear-gradient(135deg,#14b8a6,#0f766e)}
+  /* ============ NEWSLETTER CTA (Flexbox) ============ */
+  .cta-band{
+    background:linear-gradient(135deg,#0f766e,#0c4a6e);
+    color:#fff; padding:clamp(2rem,5vw,3.5rem) 0;
+  }
+  .cta-inner{
+    display:flex; flex-wrap:wrap; gap:1.5rem 2rem;
+    align-items:center; justify-content:space-between;
+  }
+  .cta-inner h2{margin:0 0 .3rem; color:#fff}
+  .cta-inner p{margin:0; color:#cbfbf1; max-width:48ch}
+  .cta-inner a{
+    background:#fff; color:#0f766e; text-decoration:none;
+    font-weight:800; padding:.85rem 1.5rem; border-radius:999px;
+    white-space:nowrap;
+  }
+  .cta-inner a:hover{background:#ccfbf1}
+  /* ============ FOOTER ============ */
+  .site-footer{background:var(--ink); color:#cbd5e1; padding:2.5rem 0 1.5rem}
+  .footer-inner{
+    display:flex; flex-wrap:wrap; gap:1.5rem 2.5rem;
+    justify-content:space-between; align-items:flex-start;
+  }
+  .footer-brand{max-width:34ch}
+  .footer-brand b{color:#fff; font-size:1.1rem}
+  .footer-brand p{color:#94a3b8; margin:.4rem 0 0; font-size:.92rem}
+  .footer-links{display:flex; flex-wrap:wrap; gap:.4rem 1.2rem}
+  .footer-links a{color:#cbd5e1; text-decoration:none; font-size:.92rem}
+  .footer-links a:hover{color:#fff; text-decoration:underline}
+  .footer-bottom{
+    margin-top:2rem; padding-top:1rem;
+    border-top:1px solid rgba(255,255,255,.12);
+    font-size:.82rem; color:#7c8899; text-align:center;
+  }
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:900px){
+    .hero-inner{grid-template-columns:1fr}
+    .hero-visual{order:-1; aspect-ratio:16/9}
+    .gallery{grid-template-columns:repeat(2,1fr); grid-auto-rows:130px}
+    .gallery .wide{grid-column:span 2}
+  }
+  @media (max-width:640px){
+    .header-inner{justify-content:center}
+    .nav{justify-content:center}
+    .hero-inner{text-align:center}
+    .hero .lead{margin-inline:auto}
+    .hero-cta{justify-content:center}
+    .day{grid-template-columns:1fr}
+    .day-num{justify-self:start; padding:.6rem 1rem}
+    .day-num b,.day-num span{display:inline}
+    .day-num span{margin-left:.4rem}
+    .cta-inner{justify-content:center; text-align:center}
+    .gallery{grid-template-columns:1fr; grid-auto-rows:150px}
+    .gallery .wide{grid-column:span 1}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important; scroll-behavior:auto!important}
+  }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#top">Wanderlust <span>Horizons</span></a>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="#destinations">Destinations</a>
+      <a href="#itinerary">Itinerary</a>
+      <a href="#tips">Travel Tips</a>
+      <a href="#gallery">Gallery</a>
+      <a class="btn" href="#join">Get the guide</a>
+    </nav>
+  </div>
+</header>
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <div>
+        <p class="eyebrow">A slow travel guide</p>
+        <h1>Northern Portugal, one river valley at a time.</h1>
+        <p class="lead">
+          Five unhurried days from the port cellars of Porto to the terraced
+          vineyards of the Douro. Fewer stops, longer lunches, and time to
+          actually look at things.
+        </p>
+        <div class="hero-cta">
+          <a class="btn-solid" href="#destinations">Explore destinations</a>
+          <a class="btn-ghost" href="#itinerary">See the 5-day plan</a>
+        </div>
+      </div>
+      <div class="hero-visual" role="img" aria-label="Illustration of a river valley journey">
+        <div>
+          <div class="icon" aria-hidden="true">🏞️</div>
+          <small>5 days · 6 stops · 1 river</small>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- DESTINATIONS -->
+  <section id="destinations" class="section">
+    <div class="wrap">
+      <p class="eyebrow">Where to go</p>
+      <h2>Six stops worth slowing down for</h2>
+      <p>Each of these is reachable by train or a short bus ride from Porto.</p>
+      <div class="dest-grid">
+        <article class="dest">
+          <div class="dest-img a" aria-hidden="true">🌉</div>
+          <div class="dest-body">
+            <h3>Porto</h3>
+            <p>Riverside Ribeira, six bridges, and port cellars across the water in Gaia.</p>
+            <div class="dest-meta"><span class="pill">City</span><span>2 days</span></div>
+          </div>
+        </article>
+        <article class="dest">
+          <div class="dest-img b" aria-hidden="true">🍇</div>
+          <div class="dest-body">
+            <h3>Douro Valley</h3>
+            <p>Terraced vineyards, quinta tastings, and a slow train along the river.</p>
+            <div class="dest-meta"><span class="pill">Wine</span><span>1 day</span></div>
+          </div>
+        </article>
+        <article class="dest">
+          <div class="dest-img c" aria-hidden="true">⛪</div>
+          <div class="dest-body">
+            <h3>Braga</h3>
+            <p>Baroque stairways at Bom Jesus and one of Portugal's oldest cathedrals.</p>
+            <div class="dest-meta"><span class="pill">History</span><span>Half day</span></div>
+          </div>
+        </article>
+        <article class="dest">
+          <div class="dest-img d" aria-hidden="true">🏰</div>
+          <div class="dest-body">
+            <h3>Guimarães</h3>
+            <p>Medieval centre and castle, widely called the birthplace of the country.</p>
+            <div class="dest-meta"><span class="pill">History</span><span>Half day</span></div>
+          </div>
+        </article>
+        <article class="dest">
+          <div class="dest-img e" aria-hidden="true">🚤</div>
+          <div class="dest-body">
+            <h3>Aveiro</h3>
+            <p>Canals, painted moliceiro boats, and the striped houses of Costa Nova.</p>
+            <div class="dest-meta"><span class="pill">Coast</span><span>1 day</span></div>
+          </div>
+        </article>
+        <article class="dest">
+          <div class="dest-img f" aria-hidden="true">🌿</div>
+          <div class="dest-body">
+            <h3>Peneda-Gerês</h3>
+            <p>Portugal's only national park: waterfalls, granite villages, and trails.</p>
+            <div class="dest-meta"><span class="pill">Nature</span><span>1–2 days</span></div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+  <!-- ITINERARY -->
+  <section id="itinerary" class="section alt">
+    <div class="wrap">
+      <p class="eyebrow">Day by day</p>
+      <h2>A realistic five-day plan</h2>
+      <p>Built around one base in Porto, with day trips rather than constant packing.</p>
+      <div class="itinerary">
+        <article class="day">
+          <div class="day-num"><b>01</b><span>Arrive</span></div>
+          <div>
+            <h3>Land in Porto, wander Ribeira</h3>
+            <p>Check in, then walk the riverfront at golden hour. Dinner somewhere small on Rua das Flores.</p>
+          </div>
+        </article>
+        <article class="day">
+          <div class="day-num"><b>02</b><span>Porto</span></div>
+          <div>
+            <h3>Old town and port cellars</h3>
+            <p>Morning in the Sé and Bolhão market. Cross to Gaia in the afternoon for two cellar tastings.</p>
+          </div>
+        </article>
+        <article class="day">
+          <div class="day-num"><b>03</b><span>Douro</span></div>
+          <div>
+            <h3>Douro Valley by train</h3>
+            <p>Early train to Pinhão. Quinta lunch, a short river cruise, and the slow route back.</p>
+          </div>
+        </article>
+        <article class="day">
+          <div class="day-num"><b>04</b><span>Minho</span></div>
+          <div>
+            <h3>Braga and Guimarães</h3>
+            <p>Bom Jesus in the morning, the medieval centre of Guimarães after lunch.</p>
+          </div>
+        </article>
+        <article class="day">
+          <div class="day-num"><b>05</b><span>Coast</span></div>
+          <div>
+            <h3>Aveiro and Costa Nova</h3>
+            <p>Canals in the morning, striped beach houses in the afternoon, back to Porto by evening.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+  <!-- TRAVEL TIPS -->
+  <section id="tips" class="section">
+    <div class="wrap">
+      <p class="eyebrow">Before you go</p>
+      <h2>Three things worth knowing</h2>
+      <div class="tips">
+        <article class="tip">
+          <span class="tip-icon" aria-hidden="true">🚆</span>
+          <h3>Getting around</h3>
+          <p>Regional trains cover Porto, Braga, Guimarães and Aveiro. Buy the reusable Andante card once and top it up.</p>
+        </article>
+        <article class="tip">
+          <span class="tip-icon" aria-hidden="true">🌤️</span>
+          <h3>When to go</h3>
+          <p>May, June and September give warm days without the August crowds. Vineyards are busiest at harvest.</p>
+        </article>
+        <article class="tip">
+          <span class="tip-icon" aria-hidden="true">💶</span>
+          <h3>Budget &amp; etiquette</h3>
+          <p>Expect €60–90 per day mid-range. A small tip is normal, and a coffee at the counter costs about €1.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+  <!-- GALLERY -->
+  <section id="gallery" class="section alt">
+    <div class="wrap">
+      <p class="eyebrow">Scenes from the route</p>
+      <h2>Gallery</h2>
+      <div class="gallery">
+        <figure class="wide g1">Ribeira at dusk</figure>
+        <figure class="g2">Port cellar</figure>
+        <figure class="g3">Vineyard rows</figure>
+        <figure class="g4">Bom Jesus stairs</figure>
+        <figure class="wide g5">Costa Nova houses</figure>
+        <figure class="g6">Gerês waterfall</figure>
+      </div>
+    </div>
+  </section>
+  <!-- CTA -->
+  <section id="join" class="cta-band">
+    <div class="wrap cta-inner">
+      <div>
+        <h2>Want the printable version?</h2>
+        <p>A one-page PDF with the itinerary, train times and a packing list, sent once a month.</p>
+      </div>
+      <a href="#top">Get the guide →</a>
+    </div>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <b>Wanderlust Horizons</b>
+      <p>Independent, slow-travel guides. No sponsored listings — every stop is visited in person.</p>
+    </div>
+    <nav class="footer-links" aria-label="Footer navigation">
+      <a href="#destinations">Destinations</a>
+      <a href="#itinerary">Itinerary</a>
+      <a href="#tips">Travel Tips</a>
+      <a href="#gallery">Gallery</a>
+    </nav>
+  </div>
+  <div class="wrap footer-bottom">© 2025 Wanderlust Horizons. Prices and times are indicative.</div>
+</footer>
+</body>
+</html>
